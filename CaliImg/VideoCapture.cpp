@@ -23,19 +23,6 @@ int main ()
     
     Mat img;
 
-	// keep going until esc...
-	// while (1)
-	// {
-	// 	cap >> img;
-
-	// 	imshow("camera img", img);
-	// 	// cap>>img;
-	// 	imwrite("image.jpg", img);
-
-	// 	if (waitKey(1) == 27)
-	// 		break;
-	// }
-
 	int count = 0;
 	int num_count = 100;
 
@@ -48,14 +35,14 @@ int main ()
 	{
 		if (Is_empty_=fs::is_empty(path)) 
 		{
-			path_img="../Img/image1.jpg";
+			path_img="../Img/1.jpg";
 			break;
 		}
 		else
 		{
 			int i = 0;
             int num_file = 0;   int* num_file_ptr=&num_file;
-			int num_file_bf=0;  int* num_file_bf_ptr=&num_file_bf;
+			// int num_file_bf=0;  int* num_file_bf_ptr=&num_file_bf;
 			int num_file_af=0;  int* num_file_af_ptr=&num_file_af;
 
 			for (const auto &file : directory_iterator(path))
@@ -64,34 +51,40 @@ int main ()
 				{
 					const std::string ext = file.path().extension();
 					string filename = file.path().stem();
-					*num_file_bf_ptr= (int)filename.back()-'0'; // ASCII to number
+					*num_file_ptr=stoi(filename);
 					i++;
 				}
 				else
 				{
 					const std::string ext = file.path().extension();
 					string filename = file.path().stem();
-					*num_file_af_ptr= (int)filename.back()-'0'; // ASCII to number
-					*num_file_ptr = std::max(num_file_bf,num_file_af);
-					*num_file_bf_ptr= *num_file_af_ptr;
+					// *num_file_af_ptr= (int)filename.back()-'0'; // ASCII to number
+					*num_file_af_ptr = stoi(filename);
+					*num_file_ptr = std::max(num_file,num_file_af);
 					i++;
 				}
 			}
-			path_img="../Img/image"+to_string(num_file+1)+".jpg";
+			path_img="../Img/"+to_string(num_file+1)+".jpg";
 			break;
 		}
 	}
 
-	while (count<num_count)
+	while (1)
 	{
 		count++;
 		cap >> img;
-		//imshow("camera img", img);
-		
+		imshow("camera img", img);
+
 		if (count==num_count)
-			{
-				imwrite(path_img, img);
-			}
+		{
+			imwrite(path_img, img); // save the calibration image
+			cout<<" image capture complete! "<<endl;
+			cout<<" press ESC to turn off the image window "<<endl;
+		}
+		
+		if (waitKey(1) == 27)
+			break;  // to turn off the window and break the while moon
+			
 	}
 
 	return 0;
