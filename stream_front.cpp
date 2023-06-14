@@ -1,5 +1,5 @@
-#include <opencv2/opencv.hpp>
 #include "./include/Stitching360.h"
+#include <opencv2/opencv.hpp>
 #include <fstream>
 #include <string>
 #include <opencv2/videoio.hpp> 
@@ -9,16 +9,6 @@
 #define back 1
 #define left 2
 #define right 3
-
-std::vector<cv::Point> vecTemp;
-void OnMouseAction(int event, int x, int y, int flags, void *para)
-{
-    switch (event)
-    {
-    case cv::EVENT_LBUTTONDOWN:
-        vecTemp.push_back(cv::Point2d(x, y));
-    }
-}
 
 int main()
 {
@@ -39,42 +29,40 @@ int main()
     }
 
     cv::Mat mSrcFront; 
-    // cv::imwrite(".././inputImg1/mSrcFront.jpg",mSrcFront);
     cv::Mat mDstFront;
-
 
     while(1)
     {
         cap>>mSrcFront;
 
         if(count<5)
-            count++;
+            count++; // every 5 frame, around-view image will be presented
         else
         {
-
-            // cv::cuda::GpuMat cmDstImageFront;
-
-            
             Stitching360 *stitching360= new Stitching360();
             stitching360->Init(mSrcFront.cols, mSrcFront.rows);
 
+            // // with undistort process
+            // cv::cuda::GpuMat cmDstImageFront;
             // cmDstImageFront.upload(mSrcFront);
             // cv::cuda::GpuMat cmDistortionFront = stitching360->Undistort(cmDstImageFront);
             // cmDistortionFront.download(mDstFront);
-            mDstFront = mSrcFront; // no distortion... 
+            
+            // without undistort process
+            mDstFront = mSrcFront; 
 
             // front (ahead)
             cv::Point2f mSrcPointsFront[] =
             {
-                cv::Point2f(251, 341),// C->D
-                cv::Point2f(520, 348),// A->B
+                cv::Point2f(251, 341), // 4 outer corners of calibration board in image (heuristically selected image)
+                cv::Point2f(520, 348),
                 cv::Point2f(463, 270),
                 cv::Point2f(278, 266)
             };
 
             cv::Point2f mDstPointsFront[] =
             {
-                cv::Point2f(350, 350),
+                cv::Point2f(350, 350), // mapping points (heuristically choosen)
                 cv::Point2f(150, 350),
                 cv::Point2f(150, 150),
                 cv::Point2f(350, 150)
@@ -84,8 +72,6 @@ int main()
             cv::hconcat(mSrcFront, mPerspectiveFront, total);
             count=0;
             num_c++;
-
-            int a =0;
             
             // path_img=".././inputImg1/"+std::to_string(num_c)+".jpg";
             // cv::imwrite(path_img,total);
@@ -94,7 +80,7 @@ int main()
 
         cv::imshow("front", total);
         if (cv::waitKey(1) == 27)
-            break;  // to turn off the window and break the while moon
+            break;  // to turn off the window and break the while-loop
 
     }
     
